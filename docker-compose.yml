@@ -1,0 +1,30 @@
+consul:
+  hostname: consul
+  container_name: consul
+  image: qnib/alplain-consul
+  ports:
+   - 8500:8500
+  environment:
+   - DC_NAME=dc1
+   - CONSUL_BOOTSTRAP_EXPECT=1
+  dns: 127.0.0.1
+
+rsyslog:
+  container_name: rsyslog
+  image: qnib/alplain-rsyslog
+  volumes_from: 
+   - consul
+  volumes:
+   - /shareddev/
+  privileged: true
+  net: container:consul
+
+base:
+  container_name: base
+  image: qnib/alpn-base
+  volumes_from: 
+   - consul
+   - rsyslog
+  net: container:consul
+  command: tail -f /dev/null
+  

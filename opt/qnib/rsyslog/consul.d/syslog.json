@@ -1,0 +1,9 @@
+{
+  "check": {
+    "id": "syslog",
+    "name": "syslog",
+    "port": 514,
+    "script": "echo 'nmap localhost -p 514 |grep open'; nmap localhost -p 514 |grep open",
+    "interval": "10s"
+  }
+}
