@@ -21,7 +21,7 @@ rsyslog:
 
 base:
   container_name: base
-  image: qnib/alpn-base
+  image: qnib/alplain-init
   volumes_from: 
    - consul
    - rsyslog
