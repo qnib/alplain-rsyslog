@@ -13,5 +13,6 @@ if [ ! -f /etc/consul.d/syslog.json ];then
 fi
 
 /opt/qnib/rsyslog/bin/configure-targets.sh
+/opt/qnib/rsyslog/bin/configure-sockets.sh
 
 /usr/sbin/rsyslogd -n

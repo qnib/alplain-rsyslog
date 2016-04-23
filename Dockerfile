@@ -5,6 +5,7 @@ ENV FORWARD_TO_ELASTICSEARCH=false \
     FORWARD_TO_HEKA=false \
     FORWARD_TO_LOGSTASH=false \
     FORWARD_TO_FILE=false \
+    PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/qnib/consul/bin/ \
     RSYSLOG_VER=8.16.0
 
 ADD patch/rsyslog.h /tmp/
@@ -18,9 +19,12 @@ RUN apk add --update autoconf automake curl-dev g++ gnutls-dev json-c-dev libee-
  && make install \
  && rm -rf /var/cache/apk/* /opt/rsyslog-${RSYSLOG_VER} /tmp/rsyslog.h
 ADD opt/qnib/rsyslog/bin/configure-targets.sh \
+    opt/qnib/rsyslog/bin/configure-sockets.sh \
     opt/qnib/rsyslog/bin/start.sh \
     /opt/qnib/rsyslog/bin/
-ADD etc/consul-templates/rsyslog_targets.conf.ctmpl /etc/consul-templates/
+ADD etc/consul-templates/rsyslog_targets.conf.ctmpl \
+    etc/consul-templates/rsyslog_imuxsock.conf.ctmpl \
+    /etc/consul-templates/
 ADD etc/rsyslog.conf /etc/
 ADD opt/qnib/rsyslog/consul.d/syslog.json /opt/qnib/rsyslog/consul.d/
 ADD etc/rsyslog.d/file.conf.disabled \

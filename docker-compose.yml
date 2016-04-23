@@ -17,6 +17,8 @@ rsyslog:
   volumes:
    - /shareddev/
   privileged: true
+  environment: 
+   - RSYSLOG_SOCKETS=base
   net: container:consul
 
 base:
