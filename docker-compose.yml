@@ -1,5 +1,5 @@
 consul:
-  hostname: consul
+  hostname: base
   container_name: consul
   image: qnib/alplain-consul
   ports:
@@ -60,18 +60,29 @@ rsyslog:
    - /shareddev/
   privileged: true
   environment: 
-   - RSYSLOG_SOCKETS=base
+   - RSYSLOG_SOCKETS=alpine,ubuntu
    - FORWARD_TO_ELASTICSEARCH=true
   net: container:consul
 
-base:
-  container_name: base
+alpine:
+  container_name: alpine
   image: qnib/alplain-init
   volumes_from: 
    - consul
    - rsyslog
   environment:
-   - LOGNAME=base
+   - LOGNAME=alpine
+  net: container:consul
+  command: tail -f /dev/null
+
+ubuntu:
+  container_name: ubuntu
+  image: qnib/alplain-init
+  volumes_from: 
+   - consul
+   - rsyslog
+  environment:
+   - LOGNAME=ubuntu
   net: container:consul
   command: tail -f /dev/null
   
