@@ -9,6 +9,48 @@ consul:
    - CONSUL_BOOTSTRAP_EXPECT=1
   dns: 127.0.0.1
 
+elasticsearch:
+    image: qnib/alpn-elasticsearch
+    hostname: elasticsearch
+    container_name: elasticsearch
+    environment:
+    - DC_NAME=dc1
+    - ES_CLUSTER_NAME=qnib
+    dns: 127.0.0.1
+    privileged: true
+    ports:
+     - "9200:9200"
+    volumes:
+     - /var/lib/elasticsearch
+    links:
+     - consul:consul
+
+kopf:
+    image: qnib/kopf
+    hostname: kopf
+    container_name: kopf
+    environment:
+     - DC_NAME=dc1
+     - ES_CLUSTER_NAME=qnib
+    dns: 127.0.0.1
+    ports:
+     - 8088:80
+    links:
+     - consul:consul
+
+kibana4:
+    image: qnib/alpn-kibana4
+    hostname: kibana4
+    container_name: kibana4
+    environment:
+     - DC_NAME=dc1
+     - ES_CLUSTER_NAME=qnib
+    dns: 127.0.0.1
+    ports:
+     - 5601:5601
+    links:
+     - consul:consul
+    
 rsyslog:
   container_name: rsyslog
   image: qnib/alplain-rsyslog
@@ -19,6 +61,7 @@ rsyslog:
   privileged: true
   environment: 
    - RSYSLOG_SOCKETS=base
+   - FORWARD_TO_ELASTICSEARCH=true
   net: container:consul
 
 base:
@@ -27,6 +70,8 @@ base:
   volumes_from: 
    - consul
    - rsyslog
+  environment:
+   - LOGNAME=base
   net: container:consul
   command: tail -f /dev/null
   

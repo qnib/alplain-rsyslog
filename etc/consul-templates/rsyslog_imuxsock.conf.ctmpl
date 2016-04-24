@@ -1,1 +1,1 @@
-input(type="imuxsock" HostName="{{ env "SOCKNAME"}}" Socket="/shareddev/{{ env "SOCKNAME"}}log")
+input(type="imuxsock" HostName="{{ env "SOCKNAME"}}" Socket="/shareddev/{{ env "SOCKNAME"}}/log")

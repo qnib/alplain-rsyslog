@@ -1,10 +1,7 @@
 module(load="omelasticsearch")
 module(load="mmjsonparse")     # can parse JSON
-action(type="mmjsonparse")  # parse CEE-formatted messages
 
-template(name="syslog-cee" type="list") {  # Elasticsearch documents will contain
-  property(name="$!all-json")              # all JSON fields that were parsed
-}
+action(type="mmjsonparse")  # parse CEE-formatted messages
 
 template(name="logstash-index"
   type="list") {
@@ -15,41 +12,23 @@ template(name="logstash-index"
     constant(value=".")
     property(name="timereported" dateFormat="rfc3339" position.from="9" position.to="10")
 }
-template(name="cee-index"
-  type="list") {
-    constant(value="cee-")
-    property(name="timereported" dateFormat="rfc3339" position.from="1" position.to="4")
-    constant(value=".")
-    property(name="timereported" dateFormat="rfc3339" position.from="6" position.to="7")
-    constant(value=".")
-    property(name="timereported" dateFormat="rfc3339" position.from="9" position.to="10")
+
+template(name="syslog"
+    type="list") {
+        constant(value="{")
+        constant(value="\"timestamp\":\"")     property(name="timereported" dateFormat="rfc3339")
+        constant(value="\",\"host\":\"")        property(name="hostname")
+        constant(value="\",\"severity\":\"")    property(name="syslogseverity-text")
+        constant(value="\",\"facility\":\"")    property(name="syslogfacility-text")
+        constant(value="\",\"tag\":\"")   property(name="syslogtag" format="json")
+        constant(value="\",\"message\":\"")    property(name="msg" format="json")
+        constant(value="\"}")
 }
 
-# this is for formatting our syslog in JSON with @timestamp
-
-template(name="plain-syslog"
-  type="list") {
-    constant(value="{")
-      constant(value="\"timestamp\":\"")     property(name="timereported" dateFormat="rfc3339")
-      constant(value="\",\"host\":\"")        property(name="hostname")
-      constant(value="\",\"severity\":\"")    property(name="syslogseverity-text")
-      constant(value="\",\"facility\":\"")    property(name="syslogfacility-text")
-      constant(value="\",\"tag\":\"")   property(name="syslogtag" format="json")
-      constant(value="\",\"message\":\"")    property(name="msg" format="json")
-    constant(value="\"}")
-}
-#template="syslog-cee"
 action(type="omelasticsearch"
        server="elasticsearch.service.consul"
        serverport="9200"
-       template="plain-syslog"
+       template="syslog"
        searchIndex="logstash-index"
-       dynSearchIndex="on"
-       action.resumeretrycount="-1")
-action(type="omelasticsearch"
-       server="elasticsearch.service.consul"
-       serverport="9200"
-       template="syslog-cee"
-       searchIndex="cee-index"
        dynSearchIndex="on"
        action.resumeretrycount="-1")
