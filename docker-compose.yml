@@ -1,5 +1,9 @@
 version: '3'
 services:
+  rsyslog:
+    image: qnib/alplain-rsyslog@sha256:88e2e6261646c9dbd108dd7d5b301b1f570164192ae5efb5e2978379949b905d
+    environment:
+     - FORWARD_TO_ELASTICSEARCH=true
   elasticsearch:
     image: qnib/plain-elasticsearch:5.5.1
     environment:
@@ -17,17 +21,6 @@ services:
       - "5601:5601"
     environment:
         ES_MASTER_HOST: tasks.elasticsearch
-  rsyslog:
-    image: qnib/alplain-rsyslog:test
-    environment:
-     - FORWARD_TO_ELASTICSEARCH=true
-#  alpine:
-#    image: qnib/alplain-init
-#    environment:
-#     - LOGNAME=alpine
-#    command: wait.sh
-#  ubuntu:
-#    image: qnib/alplain-init
-#    environment:
-#     - LOGNAME=ubuntu
-#    command: wait.sh
+  ubuntu:
+    image: qnib/uplain-init
+    command: wait.sh
