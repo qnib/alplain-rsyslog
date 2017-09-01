@@ -1,88 +1,33 @@
-consul:
-  hostname: base
-  container_name: consul
-  image: qnib/alplain-consul
-  ports:
-   - 8500:8500
-  environment:
-   - DC_NAME=dc1
-   - CONSUL_BOOTSTRAP_EXPECT=1
-  dns: 127.0.0.1
-
-elasticsearch:
-    image: qnib/alpn-elasticsearch
-    hostname: elasticsearch
-    container_name: elasticsearch
+version: '3'
+services:
+  elasticsearch:
+    image: qnib/plain-elasticsearch:5.5.1
     environment:
-    - DC_NAME=dc1
-    - ES_CLUSTER_NAME=qnib
-    dns: 127.0.0.1
-    privileged: true
+      ES_HEAP_MAX: "512m"
+      ES_HEAP_MIN: "512m"
+      ES_NODE_MASTER: "true"
+      ES_NODE_DATA: "true"
     ports:
-     - "9200:9200"
+      - "9200:9200"
     volumes:
-     - /var/lib/elasticsearch
-    links:
-     - consul:consul
-
-kopf:
-    image: qnib/kopf
-    hostname: kopf
-    container_name: kopf
-    environment:
-     - DC_NAME=dc1
-     - ES_CLUSTER_NAME=qnib
-    dns: 127.0.0.1
+      - /var/lib/elasticsearch
+  kibana:
+    image: qnib/plain-kibana5:5.5.1
     ports:
-     - 8088:80
-    links:
-     - consul:consul
-
-kibana4:
-    image: qnib/alpn-kibana4
-    hostname: kibana4
-    container_name: kibana4
+      - "5601:5601"
     environment:
-     - DC_NAME=dc1
-     - ES_CLUSTER_NAME=qnib
-    dns: 127.0.0.1
-    ports:
-     - 5601:5601
-    links:
-     - consul:consul
-    
-rsyslog:
-  container_name: rsyslog
-  image: qnib/alplain-rsyslog
-  volumes_from: 
-   - consul
-  volumes:
-   - /shareddev/
-  privileged: true
-  environment: 
-   - RSYSLOG_SOCKETS=alpine,ubuntu
-   - FORWARD_TO_ELASTICSEARCH=true
-  net: container:consul
-
-alpine:
-  container_name: alpine
-  image: qnib/alplain-init
-  volumes_from: 
-   - consul
-   - rsyslog
-  environment:
-   - LOGNAME=alpine
-  net: container:consul
-  command: tail -f /dev/null
-
-ubuntu:
-  container_name: ubuntu
-  image: qnib/alplain-init
-  volumes_from: 
-   - consul
-   - rsyslog
-  environment:
-   - LOGNAME=ubuntu
-  net: container:consul
-  command: tail -f /dev/null
-  
+        ES_MASTER_HOST: tasks.elasticsearch
+  rsyslog:
+    image: qnib/alplain-rsyslog:test
+    environment:
+     - FORWARD_TO_ELASTICSEARCH=true
+#  alpine:
+#    image: qnib/alplain-init
+#    environment:
+#     - LOGNAME=alpine
+#    command: wait.sh
+#  ubuntu:
+#    image: qnib/alplain-init
+#    environment:
+#     - LOGNAME=ubuntu
+#    command: wait.sh
